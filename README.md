@@ -10,6 +10,7 @@ First you need to install `primus_vk`:
  * On Archlinux there are official packages ([for 64-bit games](https://www.archlinux.org/packages/community/x86_64/primus_vk/), [for 32-bit games](https://www.archlinux.org/packages/multilib/x86_64/lib32-primus_vk/)).
  * On Debian (from bullseye on) you should use `primus-vk-nvidia` (which recommends also the 32-bit variants of those packages for 32-bit games), which already is preconfigured for the Nvidia dedicated + Intel integrated graphics setup. When you have a different setup, you should install just `primus-vk` (which installs only the bare `primus_vk`-library and no graphics drivers), and install the Vulkan drivers, you need manually.
  * For Fedora there are [unofficial packages](https://copr.fedorainfracloud.org/coprs/yura/primus-vk/).
+ * For Gentoo Linux and affiliates distributions, an unoffical overlay branch is develloped here. This overlay branch supports multilib abi_x86_32 and abi_x86_64 for 32 and 64bit Vulkan applications on Intel/Nvidia Optimus configuration.
  * For other distributions you will likely need to [manually install](#installation) `primus_vk`.
 
 To run an application with `primus_vk` prefix the command with `pvkrun` (which in the easiest case is just `ENABLE_PRIMUS_LAYER=1 optirun`). So instead of running `path/to/application`, invoke `pvkrun path/to/application` instead. You should be able to use `pvkrun` for all applications, independently of them using Vulkan, OpenGL or both.
