@@ -1,0 +1,39 @@
+# ChangeLog for x11-libs/primus_vk
+# Copyright 1999-2022 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+* primus_vk-9999
+	(21 May 2022) jay <jaypeche@gmail.com>
+	+ primus_vk git-r3 multilib @latest_git_commit
+
+* primus_vk-1.6.1-r6 revision 6
+	(21 May 2022) jay <jaypeche@gmail.com>
+	+ vulkan core stable version bump
+	+ repoman check
+
+* primus_vk-1.6.1-r5 revision 5
+	(7 Mar 2022) jay <jaypeche@gmail.com>
+	+ EAPI 7
+	+ fix !multilib applied patches
+	- removed obsolet ebuild
+
+* primus_vk-1.6.1-r4 revision 4
+	(27 Dec 2021) jay <jaypeche@gmail.com>
+	+ vulkan core version bump
+	+ debug_tools_path_fix
+	- removed obsolet ebuild
+
+* primus_vk-1.6.1-r3 revision 3
+	(16 Nov 2021) jay <jaypeche@gmail.com>
+	+ vulkan core version bump
+	+ primus_diag lib fix
+	+ primus_segfault_workaround_issue86
+	+ repoman check
+	- removed obsolet ebuild
+
+* primus_vk-1.6.1-r2 revision 2
+	(15 Aug 2021) jay <jaypeche@gmail.com>
+	+ primus_vk git-r3 multilib rev2
+	+ debug useflag
+	- removed obsolet ebuild
+

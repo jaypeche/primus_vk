@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+	This Vulkan layer can be used to do GPU offloading. Typically you want to display an image rendered on a more powerful GPU on a display managed by an internal GPU.
+	</longdescription>
+	<use>
+		<flag name="debug">
+		Enable primus_vk dialog debug tool
+		</flag>
+		<flag name="multilib">
+		Build with multilib x86_32/x86_64 abi(s)
+		</flag>
+	</use>
+	<maintainer type="person">
+		<email>jaypeche@gmail.com</email>
+		<name>jaypeche</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">felixdoerre/primus_vk</remote-id>
+	</upstream>
+</pkgmetadata>

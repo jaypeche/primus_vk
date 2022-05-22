@@ -1,0 +1,40 @@
+diff -urN primus_vk-1.6.1.orig/primus_vk_diag.sh primus_vk-1.6.1/primus_vk_diag.sh
+--- primus_vk-1.6.1.orig/primus_vk_diag.sh	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/primus_vk_diag.sh	2022-01-05 10:42:51.712563200 +0100
+@@ -3,6 +3,7 @@
+ export VK_LOADER_DEBUG=warn,error,info
+ export LD_DEBUG=libs
+ export ENABLE_PRIMUS_LAYER=0
++export PVK_DIAG_PATH=/usr/bin
+ 
+ function step_0 {
+     printf "===== Round 0: Vulkaninfo =====\n"
+@@ -17,23 +18,23 @@
+ }
+ function step_1 {
+     printf "===== Round 1: Plain Vulkan =====\n"
+-    ./primus_vk_diag vulkan 2>&1
++    ${PVK_DIAG_PATH}/primus_vk_diag vulkan 2>&1
+ }
+ function step_2 {
+     printf "===== Round 2: Vulkan with optirun =====\n"
+-    optirun ./primus_vk_diag vulkan 2>&1
++    optirun ${PVK_DIAG_PATH}/primus_vk_diag vulkan 2>&1
+ }
+ function step_3 {
+     printf "===== Round 3: Vulkan with optirun and Primus layer =====\n"
+-    ENABLE_PRIMUS_LAYER=1 optirun ./primus_vk_diag vulkan 2>&1
++    ENABLE_PRIMUS_LAYER=1 optirun ${PVK_DIAG_PATH}/primus_vk_diag vulkan 2>&1
+ }
+ function step_4 {
+     printf "===== Round 4: Mixed Vulkan and OpenGL with Primus layer =====\n"
+-    ENABLE_PRIMUS_LAYER=1 optirun ./primus_vk_diag vulkan gl vulkan 2>&1
++    ENABLE_PRIMUS_LAYER=1 optirun ${PVK_DIAG_PATH}/primus_vk_diag vulkan gl vulkan 2>&1
+ }
+ function step_5 {
+     printf "===== Round 5: Mixed Vulkan and OpenGL with Primus layer while forcing primus-libGLa =====\n"
+-    ENABLE_PRIMUS_LAYER=1 optirun env PRIMUS_libGLa=/usr/lib/x86_64-linux-gnu/nvidia/current/libGLX_nvidia.so.0 ./primus_vk_diag vulkan gl vulkan 2>&1
++    ENABLE_PRIMUS_LAYER=1 optirun env PRIMUS_libGLa=/usr/lib/libGLX_nvidia.so.0 ${PVK_DIAG_PATH}/primus_vk_diag vulkan gl vulkan 2>&1
+ }
+ 
+ if [[ $# == 0 ]]; then

@@ -1,0 +1,58 @@
+diff -urN primus_vk-1.6.1.orig/Makefile primus_vk-1.6.1/Makefile
+--- primus_vk-1.6.1.orig/Makefile	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/Makefile	2022-01-16 11:24:55.520261333 +0100
+@@ -1,12 +1,12 @@
+ DESTDIR      ?=
+-PREFIX        = /usr/local
++PREFIX        = /usr
+ INSTALL       = /usr/bin/install
+ override INSTALL += -D
+ MSGFMT        = /usr/bin/msgfmt
+ SED           = /bin/sed
+ LN            = /bin/ln
+ bindir        = $(PREFIX)/bin
+-libdir        = $(PREFIX)/lib
++libdir        = $(PREFIX)/${LIBDIR}
+ sysconfdir    = $(PREFIX)/etc
+ datarootdir   = ${PREFIX}/share
+ datadir       = ${datarootdir}
+@@ -41,3 +41,4 @@
+ 	$(INSTALL) -m644 "primus_vk.json" -t "$(DESTDIR)$(datadir)/vulkan/implicit_layer.d/"
+ 	$(INSTALL) -m644 "nv_vulkan_wrapper.json" -t "$(DESTDIR)$(datadir)/vulkan/icd.d/"
+ 	$(INSTALL) -m755 "pvkrun.in.sh" "$(DESTDIR)$(bindir)/pvkrun"
++
+diff -urN primus_vk-1.6.1.orig/primus_vk.cpp primus_vk-1.6.1/primus_vk.cpp
+--- primus_vk-1.6.1.orig/primus_vk.cpp	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/primus_vk.cpp	2022-01-16 11:24:45.725230259 +0100
+@@ -1,10 +1,10 @@
+ #define VK_USE_PLATFORM_XCB_KHR
+ #define VK_USE_PLATFORM_XLIB_KHR
+ #define VK_USE_PLATFORM_WAYLAND_KHR
+-#include "vulkan.h"
++#include "vulkan/vulkan.h"
+ #include "vk_layer.h"
+ 
+-#include "vk_layer_dispatch_table.h"
++#include "vulkan/vk_layer_dispatch_table.h"
+ 
+ #include <cassert>
+ #include <cstring>
+diff -urN primus_vk-1.6.1.orig/pvkrun.in.sh primus_vk-1.6.1/pvkrun.in.sh
+--- primus_vk-1.6.1.orig/pvkrun.in.sh	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/pvkrun.in.sh	2022-01-16 11:25:05.154292092 +0100
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-ENABLE_PRIMUS_LAYER=1 exec primusrun "$@"
++ENABLE_PRIMUS_LAYER=1 exec optirun -b primus "$@"
+diff -urN primus_vk-1.6.1.orig/README.md primus_vk-1.6.1/README.md
+--- primus_vk-1.6.1.orig/README.md	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/README.md	2022-01-16 11:25:16.610328915 +0100
+@@ -10,6 +10,8 @@
+  * On Archlinux there are official packages ([for 64-bit games](https://www.archlinux.org/packages/community/x86_64/primus_vk/), [for 32-bit games](https://www.archlinux.org/packages/multilib/x86_64/lib32-primus_vk/)).
+  * On Debian (from bullseye on) you should use `primus-vk-nvidia` (which recommends also the 32-bit variants of those packages for 32-bit games), which already is preconfigured for the Nvidia dedicated + Intel integrated graphics setup. When you have a different setup, you should install just `primus-vk` (which installs only the bare `primus_vk`-library and no graphics drivers), and install the Vulkan drivers, you need manually.
+  * For Fedora there are [unofficial packages](https://copr.fedorainfracloud.org/coprs/yura/primus-vk/).
++ * For Gentoo Linux and affiliates distributions, an unoffical overlay branch is develloped [here](https://ftp.pingwho.org/pub/gentoo/ftp/overlay/dbox2-overlay/x11-libs/primus_vk/).
++ This overlay branch supports multilib abi_x86_32 and abi_x86_64 for Vulkan applications on Intel/Nvidia Optimus configuration.
+  * For other distributions you will likely need to [manually install](#installation) `primus_vk`.
+ 
+ To run an application with `primus_vk` prefix the command with `pvkrun` (which in the easiest case is just `ENABLE_PRIMUS_LAYER=1 optirun`). So instead of running `path/to/application`, invoke `pvkrun path/to/application` instead. You should be able to use `pvkrun` for all applications, independently of them using Vulkan, OpenGL or both.

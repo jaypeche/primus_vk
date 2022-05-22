@@ -1,0 +1,28 @@
+diff -urN primus_vk.orig/Makefile primus_vk/Makefile
+--- primus_vk.orig/Makefile	2021-08-15 02:04:17.397517761 +0200
++++ primus_vk/Makefile	2021-08-15 02:02:57.615081284 +0200
+@@ -13,7 +13,7 @@
+ 
+ override CXXFLAGS += --std=c++17 -g3
+ 
+-all: libprimus_vk.so libnv_vulkan_wrapper.so
++all: libprimus_vk.so libnv_vulkan_wrapper.so primus_vk_diag
+ 
+ libprimus_vk.so: primus_vk.cpp
+ 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I/usr/include/vulkan -shared -fPIC $^ -o $@ -Wl,-soname,libprimus_vk.so.1 -ldl -lpthread $(LDFLAGS)
+@@ -33,7 +33,7 @@
+ 	$(CXX) -g3 -o $@ $^ -lX11 -lvulkan -ldl -lpthread $(LDFLAGS)
+ 
+ clean:
+-	rm -f libnv_vulkan_wrapper.so libprimus_vk.so
++	rm -f libnv_vulkan_wrapper.so libprimus_vk.so primus_vk_diag
+ 
+ install: all
+ 	$(INSTALL) "libnv_vulkan_wrapper.so" "$(DESTDIR)$(libdir)/libnv_vulkan_wrapper.so.1"
+@@ -41,4 +41,6 @@
+ 	$(INSTALL) -m644 "primus_vk.json" -t "$(DESTDIR)$(datadir)/vulkan/implicit_layer.d/"
+ 	$(INSTALL) -m644 "nv_vulkan_wrapper.json" -t "$(DESTDIR)$(datadir)/vulkan/icd.d/"
+ 	$(INSTALL) -m755 "pvkrun.in.sh" "$(DESTDIR)$(bindir)/pvkrun"
++	$(INSTALL) -m755 "primus_vk_diag.sh" "$(DESTDIR)$(bindir)/primus_vk_diag.sh"
++	$(INSTALL) -m755 "primus_vk_diag" "$(DESTDIR)$(bindir)/primus_vk_diag"
+ 

@@ -1,0 +1,16 @@
+diff -urN primus_vk-1.6.1.orig/primus_vk.cpp primus_vk-1.6.1/primus_vk.cpp
+--- primus_vk-1.6.1.orig/primus_vk.cpp	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/primus_vk.cpp	2021-01-30 01:27:17.456862304 +0100
+@@ -1,10 +1,10 @@
+ #define VK_USE_PLATFORM_XCB_KHR
+ #define VK_USE_PLATFORM_XLIB_KHR
+ #define VK_USE_PLATFORM_WAYLAND_KHR
+-#include "vulkan.h"
++#include "vulkan/vulkan.h"
+ #include "vk_layer.h"
+ 
+-#include "vk_layer_dispatch_table.h"
++#include "vulkan/vk_layer_dispatch_table.h"
+ 
+ #include <cassert>
+ #include <cstring>

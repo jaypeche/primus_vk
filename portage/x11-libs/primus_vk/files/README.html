@@ -1,0 +1,71 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title></title></head><body><h1>Primus-vk</h1>
+<p>This Vulkan layer can be used to do GPU offloading. Typically you want to display an image rendered on a more powerful GPU on a display managed by an internal GPU.</p>
+<p>It is basically the same as Primus for OpenGL (<a href="https://github.com/amonakov/primus">https://github.com/amonakov/primus</a>). However it does not wrap the Vulkan API from the application but is directly integrated into Vulkan as a layer (which seems to be the intendend way to implement such logic).</p>
+<h2>Usage</h2>
+<p>First you need to install <code>primus_vk</code>:</p>
+<ul>
+<li>On Archlinux there are official packages (<a href="https://www.archlinux.org/packages/community/x86_64/primus_vk/">for 64-bit games</a>, <a href="https://www.archlinux.org/packages/multilib/x86_64/lib32-primus_vk/">for 32-bit games</a>).</li>
+<li>On Debian (from bullseye on) you should use <code>primus-vk-nvidia</code> (which recommends also the 32-bit variants of those packages for 32-bit games), which already is preconfigured for the Nvidia dedicated + Intel integrated graphics setup. When you have a different setup, you should install just <code>primus-vk</code> (which installs only the bare <code>primus_vk</code>-library and no graphics drivers), and install the Vulkan drivers, you need manually.</li>
+<li>For Fedora there are <a href="https://copr.fedorainfracloud.org/coprs/yura/primus-vk/">unofficial packages</a>.</li>
+<li>For Gentoo Linux and affiliates distributions, an unoffical overlay branch is develloped <a href="https://ftp.pingwho.org/pub/gentoo/ftp/overlay/dbox2-overlay/x11-libs/primus_vk/">here</a>.
+This overlay branch supports multilib abi_x86_32 and abi_x86_64 for 32 and 64bit Vulkan applications on Intel/Nvidia Optimus configuration.</li>
+<li>For other distributions you will likely need to <a href="#installation">manually install</a> <code>primus_vk</code>.
+To run an application with <code>primus_vk</code> prefix the command with <code>pvkrun</code> (which in the easiest case is just <code>ENABLE_PRIMUS_LAYER=1 optirun</code>). So instead of running <code>path/to/application</code>, invoke <code>pvkrun path/to/application</code> instead. You should be able to use <code>pvkrun</code> for all applications, independently of them using Vulkan, OpenGL or both.</li>
+</ul>
+<p>By default <code>primus_vk</code> chooses a graphics card marked as <code>dedicated</code> and one not marked as <code>dedicated</code>. If that does not fit on your scenario, you need to specify the devices used for rendering and displaying manually. You can use <code>PRIMUS_VK_DISPLAYID</code> and <code>PRIMUS_VK_RENDERID</code> and give them the <code>deviceID</code>s from <code>optirun env DISPLAY=:8 vulkaninfo</code>. That way you can force <code>primus_vk</code> to work in a variety of different scenarios (e.g. having two dedicated graphics cards and rendering on one, while displaying on the other).</p>
+<h2>Idea</h2>
+<p>Just as the OpenGL-Primus: Let the application talk to the primary display and transparently map API calls so that the application thinks, it renders using the primary display, however the <code>VkDevice</code> (and <code>VkImage</code>s) comes from the rendering GPU.
+When the application wants to swap frames, copy the image over to the integrated GPU and display it there.</p>
+<h2>Why do we need to copy the Image so often?</h2>
+<p>As far as I can tell <code>VkImage</code> (and <code>VkMemory</code>) objects may not be shared beween different physical devices. So there is not really another way than using <code>memcpy</code> on the images when memmapped into main memory.</p>
+<p>Additionally, only images with <code>VK_IMAGE_TILING_OPTIMAL</code> can be rendered to and presentend and only images with <code>VK_IMAGE_TILING_LINEAR</code> can be mapped to main memory to be copied. So I see no better way than copying the image 3 times from render target to display. On my machine the <code>memcpy</code> from an external device was pretty clearly the bottleneck. So it is not really the copying of the image, but the transfer from rendering GPU into main memory.</p>
+<p>An idea might be to use <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT</code> to map one device's memory and use that directly on the other device (or import host-allocated memory on both devices). However that is not implemented yet.</p>
+<h2>Dependencies</h2>
+<p>This layer requires two working vulkan drivers. The only hardware that I have experience with are Intel Integrated Graphics + Nvidia. However it should theoretically work with any other graphics setup of two vulkan-compatible graphics devices. For the Nvidia graphics card, both the &quot;nonglvd&quot; and the &quot;glvnd&quot; proprietary driver seem to work, however the &quot;nonglvnd&quot;-driver seems to be broken around <code>430.64</code> and is removed in newer versions.</p>
+<p>To use this layer you will require something similar to bumblebee to poweron/off the dedicated graphics card.</p>
+<p>Due to a bug/missing feature in the Vulkan Loader you will need <code>Vulkan/libvulkan &gt;= 1.1.108</code>. If you have an older system you can try primus_vk version 1.1 which contains an ugly workaround for that issue and is therefore compatible with older Vulkan versions.</p>
+<h2>Development Status</h2>
+<p>This layer works for all the applications I tested it with, but uses a fair share of CPU resorces for copying.</p>
+<h2>Technical Limitations</h2>
+<ol>
+<li>
+<p>The NVIDIA driver always connect to the &quot;default&quot; X-Display to verify that it has the NV-GLX extensions availible. Otherwise the NVIDIA-vulkan-icd driver disables itself. For testing an intermediate solution is to modify the demo application to always use &quot;:0&quot; and set DISPLAY to &quot;:8&quot; to make the NV-Driver happy. However this approach does work on general applications that cannot be modified. So this issue has to be solved in the graphics driver.</p>
+</li>
+<li>
+<p>Currently under Debian unstable the nvidia-icd is registered with a non-absolute library path in <code>/usr/share/vulkan/icd.d/nvidia_icd.json</code>. Replace <code>libGL.so.1</code> with <code>/usr/lib/x86_64-linux-gnu/nvidia/libGL.so.1</code> there to always load the intended Vulkan driver.</p>
+</li>
+<li>
+<p>When running an applications with DXVK and wine, wine loads both Vulkan and OpenGL. This creates a problem as:</p>
+<ol>
+<li>Wine loads Vulkan, which loades the integrated GPU's ICD, the Nvidia ICD (contained in Nvidia's libGL.so on my system), Primus-VK and potentially more.</li>
+<li>Wine loads OpenGL, which should be satisfied by OpenGL-Primus. However for whatever reason wine directly gets Nvidia's libGL which fails to provide an OpenGL context for the primary X screen.
+This needs to be prevented by forcing wine to load Primus' libGL.</li>
+</ol>
+</li>
+</ol>
+<p>Issues 1.,2. and 3. can be worked around by compiling <code>libnv_vulkan_wrapper.so</code> and registering it instead of nvidia's <code>libGL.so.1</code> in <code>/usr/share/vulkan/icd.d/nvidia_icd.json</code>.</p>
+<h2>Installation</h2>
+<h3>Locally</h3>
+<p>Create the folder <code>~/.local/share/vulkan/implicit_layer.d</code> and copy <code>primus_vk.json</code> there with the path adjusted to the location of the shared object.</p>
+<h3>System-wide</h3>
+<p>Copy <code>primus_vk.json</code> to <code>/usr/share/vulkan/implicit_layer.d</code> and adjust the path.</p>
+<h2>Howto</h2>
+<ol>
+<li>Install the correct vulkan icds (i.e. intel/mesa, nvidia, amd, depending on your hardware).</li>
+<li>Use <code>make libprimus_vk.so libnv_vulkan_wrapper.so</code> to compile Primus-vk and <code>libnv_vulkan_wrapper.so</code> (check that the path to the nvidia-driver in <code>nv_vulkan_wrapper.so</code> is correct).</li>
+<li>Ensure that the (unwrapped) nvidia driver is not registered (e.g. in <code>/usr/share/vulkan/icd.d/nvidia_icd.json</code>) and create a similar file <code>nv_vulkan_wrapper.json</code> where the path to the driver points to the compiled <code>libnv_vulkan_wrapper.so</code>.</li>
+<li>(Optional) Run <code>optirun primus_vk_diag</code>. It has to display entries for both graphics cards, otherwise the driver setup is broken. You can also test with <code>optirun vulkaninfo</code> that your Vulkan drivers are at least detecting your graphics cards.</li>
+<li>Install <code>primus_vk.json</code> and adjust path.</li>
+<li>Run <code>ENABLE_PRIMUS_LAYER=1 optirun vulkan-smoketest</code>.</li>
+</ol>
+<h3>Arch Linux</h3>
+<p>Notes for running on Arch Linux:</p>
+<ul>
+<li>nv_vulkan_wrapper.cpp: Change nvDriver path to <code>/usr/lib/libGLX_nvidia.so.0</code></li>
+<li>primus_vk.cpp: add: <code>#include &quot;vk_layer_utils.h&quot;</code> (on Debian the contents are included in some other header and there is no &quot;vk_layer_utils.h&quot;)</li>
+</ul>
+<h3>RPM package</h3>
+<p>Leonid Maksymchuk built RPM packaging scripts for primus-vk which can be found in his <a href="https://github.com/leonmaxx/primus-vk-rpm">repository</a>. RPMs for Fedora &gt;= 30 are available <a href="https://copr.fedorainfracloud.org/coprs/yura/primus-vk/">here</a></p>
+<h2>Credits</h2>
+<p>This layer is based on the sample layer available under <a href="https://github.com/baldurk/sample_layer">https://github.com/baldurk/sample_layer</a>. The guide that goes along with it is <a href="https://renderdoc.org/vulkan-layer-guide.html">https://renderdoc.org/vulkan-layer-guide.html</a>.</p>
+</body></html>

@@ -1,0 +1,7 @@
+diff -urN primus_vk-1.6.1.orig/pvkrun.in.sh primus_vk-1.6.1/pvkrun.in.sh
+--- primus_vk-1.6.1.orig/pvkrun.in.sh	2020-12-26 02:37:10.000000000 +0100
++++ primus_vk-1.6.1/pvkrun.in.sh	2021-11-22 20:26:27.498174443 +0100
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-ENABLE_PRIMUS_LAYER=1 exec primusrun "$@"
++ENABLE_PRIMUS_LAYER=1 exec optirun -b primus "$@"

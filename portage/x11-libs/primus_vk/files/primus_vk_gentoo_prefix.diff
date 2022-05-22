@@ -1,0 +1,23 @@
+diff -urN primus_vk.orig/Makefile primus_vk/Makefile
+--- primus_vk.orig/Makefile	2021-08-12 15:11:48.640111325 +0200
++++ primus_vk/Makefile	2021-08-12 15:24:48.860047388 +0200
+@@ -1,12 +1,12 @@
+ DESTDIR      ?=
+-PREFIX        = /usr/local
++PREFIX        = /usr
+ INSTALL       = /usr/bin/install
+ override INSTALL += -D
+ MSGFMT        = /usr/bin/msgfmt
+ SED           = /bin/sed
+ LN            = /bin/ln
+ bindir        = $(PREFIX)/bin
+-libdir        = $(PREFIX)/lib
++libdir        = $(PREFIX)/${LIBDIR}
+ sysconfdir    = $(PREFIX)/etc
+ datarootdir   = ${PREFIX}/share
+ datadir       = ${datarootdir}
+@@ -41,3 +41,4 @@
+ 	$(INSTALL) -m644 "primus_vk.json" -t "$(DESTDIR)$(datadir)/vulkan/implicit_layer.d/"
+ 	$(INSTALL) -m644 "nv_vulkan_wrapper.json" -t "$(DESTDIR)$(datadir)/vulkan/icd.d/"
+ 	$(INSTALL) -m755 "pvkrun.in.sh" "$(DESTDIR)$(bindir)/pvkrun"
++
