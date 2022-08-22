@@ -20,7 +20,7 @@ case ${PV} in
 	SRC_URI="https://github.com/felixdoerre/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 	RESTRICT="mirror"
 	S="${WORKDIR}/${PN}-${PV}"
-	VK_VERSION="1.3.204"
+	VK_VERSION="1.3.216"
 	;;
 esac
 
@@ -31,11 +31,11 @@ IUSE="debug multilib"
 RDEPEND=">=dev-util/vulkan-headers-${VK_VERSION}
 	multilib? ( >=media-libs/vulkan-layers-${VK_VERSION}[${MULTILIB_USEDEP}]
 		>=media-libs/vulkan-loader-${VK_VERSION}[${MULTILIB_USEDEP}]
-		>=x11-drivers/nvidia-drivers-460.91.03[${MULTILIB_USEDEP}]
+		>=x11-drivers/nvidia-drivers-510.73.05-r1[${MULTILIB_USEDEP}]
 		>=x11-misc/primus-0.2-r3[${MULTILIB_USEDEP}] )
 	!multilib? ( >=media-libs/vulkan-layers-${VK_VERSION}
 		>=media-libs/vulkan-loader-${VK_VERSION}
-		x86? ( >=x11-drivers/nvidia-drivers-390.144 )
+		x86? ( >=x11-drivers/nvidia-drivers-390.151 )
 		>=x11-misc/primus-0.2-r3 )
 	>=x11-misc/bumblebee-3.2.1_p20210112-r4"
 
@@ -72,8 +72,14 @@ src_prepare() {
 src_compile() {
 	if use multilib; then
 	mymake() {
-		emake LIBDIR=$(get_libdir) all || die
-	}
+		if use abi_x86_64 && multilib_is_native_abi; then
+			cd "${WORKDIR}/${P}-abi_x86_64.amd64"
+			emake LIBDIR=lib64 all || die
+		else
+			cd "${WORKDIR}/${P}-abi_x86_32.x86"
+			emake LIBDIR=lib all || die
+		fi
+		}
 	multilib_parallel_foreach_abi mymake
 	else
 		emake LIBDIR=$(get_libdir) all || die
@@ -83,7 +89,7 @@ src_compile() {
 src_install() {
 	if use multilib; then
 	myinst() {
-		if multilib_is_native_abi; then
+		if use abi_x86_64 && multilib_is_native_abi; then
 			cd "${WORKDIR}/${P}-abi_x86_64.amd64"
 			emake DESTDIR="${D}" LIBDIR=lib64 install || die
 		else

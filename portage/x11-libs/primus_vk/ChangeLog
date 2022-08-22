@@ -3,8 +3,21 @@
 # Distributed under the terms of the GNU General Public License v2
 
 * primus_vk-9999
-	(21 May 2022) jay <jaypeche@gmail.com>
+	(7 Aug 2022) jay <jaypeche@gmail.com>
 	+ primus_vk git-r3 multilib @latest_git_commit
+
+* primus_vk-1.6.2-r1 revision 1
+	(7 Aug 2022) jay <jaypeche@gmail.com>
+	+ primus_vk version bump
+	+ vulkan core stable version bump
+	+ fix dependencies
+	+ repoman check
+
+* primus_vk-1.6.1-r7 revision 7
+	(19 Jun 2022) jay <jaypeche@gmail.com>
+	+ vulkan core stable version bump
+	+ fix dependencies
+	+ repoman check
 
 * primus_vk-1.6.1-r6 revision 6
 	(21 May 2022) jay <jaypeche@gmail.com>
